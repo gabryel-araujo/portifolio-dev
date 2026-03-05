@@ -1,40 +1,22 @@
-import Link from "next/link";
-import { ArrowRight, Mail, Trophy, Medal, Star } from "lucide-react";
-import * as motion from "framer-motion/client";
+"use client";
 
+import Link from "next/link";
+import {
+  ArrowRight,
+  Mail,
+  Trophy,
+  Medal,
+  CodeXml,
+  Loader2,
+} from "lucide-react";
+import * as motion from "framer-motion/client";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/section";
 import { ProjectCard } from "@/components/project-card";
 import { Badge } from "@/components/ui/badge";
 import { Marquee } from "@/components/marquee";
-
-const FEATURED_PROJECTS = [
-  {
-    title: "Project Alpha",
-    description:
-      "Sistema financeiro de alta escalabilidade. (Mock via Supabase em breve)",
-    tags: ["Next.js", "TypeScript", "Tailwind", "Supabase"],
-    slug: "project-alpha",
-    githubUrl: "https://github.com",
-    demoUrl: "https://demo.com",
-  },
-  {
-    title: "Golden Dashboard",
-    description:
-      "Analytics em tempo real com UI premium. (Mock via Supabase em breve)",
-    tags: ["React", "PostgreSQL", "Charts"],
-    slug: "golden-dashboard",
-    githubUrl: "https://github.com",
-  },
-  {
-    title: "E-commerce Luxury",
-    description:
-      "Plataforma de vendas focada em conversão. (Mock via Supabase em breve)",
-    tags: ["Next.js", "Stripe", "Framer Motion"],
-    slug: "ecommerce-luxury",
-    demoUrl: "https://demo.com",
-  },
-];
+import { Project } from "./api/infra/domain/Project";
+import { useEffect, useState } from "react";
 
 const SKILLS = [
   "Next.js",
@@ -47,14 +29,31 @@ const SKILLS = [
   "Framer Motion",
   "GraphQL",
   "Docker",
+  "Java",
+  "Spring Boot",
+  "Go lang",
 ];
 
 export default function Home() {
+  const [FEATURED_PROJECTS, setFEATURED_PROJECTS] = useState<Project[]>([]);
+
+  async function getProjectsFeatured() {
+    const response = await fetch("/api/projects");
+    const projects = await response.json();
+    setFEATURED_PROJECTS(
+      projects.filter((project: Project) => project.is_featured),
+    );
+  }
+
+  useEffect(() => {
+    getProjectsFeatured();
+  }, []);
+
   return (
     <div className="flex flex-col gap-16 md:gap-32 mb-16 md:mb-24 overflow-hidden">
       {/* HERO SECTION */}
-      <section className="container mx-auto px-4 pt-32 md:pt-48 pb-16 max-w-5xl flex flex-col items-center justify-center text-center gap-6 relative">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background blur-2xl opacity-50"></div>
+      <section className="container mx-auto px-4 pt-16 md:pt-8 pb-16 max-w-5xl flex flex-col items-center justify-center text-center gap-6 relative">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/20 via-background to-background blur-2xl opacity-50"></div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -73,11 +72,15 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-balance max-w-4xl bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-foreground/70"
+          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-balance max-w-4xl bg-clip-text text-transparent bg-linear-to-r from-foreground via-foreground to-foreground/70"
         >
-          Transformando ideias em{" "}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-yellow-400 to-primary">
-            Ouro Digital
+          Projetando e{" "}
+          <span className="bg-clip-text text-transparent bg-linear-to-r from-primary via-yellow-400 to-primary">
+            desenvolvendo{" "}
+          </span>
+          soluções{" "}
+          <span className="bg-clip-text text-transparent bg-linear-to-r from-primary via-yellow-400 to-primary">
+            escaláveis
           </span>
           .
         </motion.h1>
@@ -123,12 +126,12 @@ export default function Home() {
 
       {/* MARQUEE SECTION */}
       <section className="border-y border-border/30 bg-muted/10 py-8 relative">
-        <div className="absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-background to-transparent z-10" />
-        <div className="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-background to-transparent z-10" />
+        <div className="absolute inset-y-0 left-0 w-1/6 bg-linear-to-r from-background to-transparent z-10" />
+        <div className="absolute inset-y-0 right-0 w-1/6 bg-linear-to-l from-background to-transparent z-10" />
         <Marquee direction="left" speed={30} className="py-2">
           {SKILLS.map((skill, i) => (
             <div key={i} className="flex items-center gap-3 px-8">
-              <Star className="h-4 w-4 text-primary opacity-50" />
+              <CodeXml className="h-8 w-8 text-primary opacity-50" />
               <span className="text-3xl font-black text-foreground/20 uppercase tracking-wider">
                 {skill}
               </span>
@@ -143,6 +146,11 @@ export default function Home() {
         title="Trabalhos em Destaque"
         subtitle="Soluções de alto nível construídas para impactar."
       >
+        {FEATURED_PROJECTS.length === 0 && (
+          <div className="flex items-center justify-center w-full">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {FEATURED_PROJECTS.map((project, i) => (
             <motion.div
@@ -180,9 +188,8 @@ export default function Home() {
             <p>
               Sou um engenheiro fullstack com experiência em liderar o
               desenvolvimento de plataformas escaláveis. Meu foco sempre foi
-              entregar uma arquitetura sólida (Node.js, Supabase, PostgreSQL)
-              aliada a uma experiência de usuário premium e inesquecível no
-              front-end (Next.js, Framer Motion).
+              entregar uma arquitetura sólida aliada a uma experiência de
+              usuário premium e inesquecível no front-end.
             </p>
             <p>
               Acredito que o código não deve apenas funcionar, mas deve ser{" "}
@@ -193,7 +200,7 @@ export default function Home() {
               digital.
             </p>
           </div>
-          <div className="bg-gradient-to-br from-primary/10 to-background border border-primary/20 rounded-3xl p-8 relative overflow-hidden group">
+          <div className="bg-linear-to-br from-primary/10 to-background border border-primary/20 rounded-3xl p-8 relative overflow-hidden group">
             <div className="absolute -right-8 -top-8 text-primary/10 transition-transform group-hover:scale-110 group-hover:rotate-12 duration-500">
               <Trophy className="h-48 w-48" />
             </div>
@@ -221,7 +228,7 @@ export default function Home() {
       {/* CONTACT SECTION */}
       <Section id="contact" className="py-24">
         <div className="relative rounded-3xl overflow-hidden border border-primary/20 bg-background/50 backdrop-blur">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background -z-10" />
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-background -z-10" />
           <div className="p-10 md:p-20 text-center max-w-3xl mx-auto space-y-8 relative z-10">
             <h3 className="text-4xl md:text-5xl font-black">
               Vamos construir o extraordinário?
